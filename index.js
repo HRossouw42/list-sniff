@@ -27,16 +27,28 @@ fs.readdir(
     const allStats = await Promise.all(statPromises);
 
     // TODO: sort to insure directories are first
+    const mapped = allStats.map((v, i) => {
+      return { i, value: v.isDirectory() };
+    });
+
+    mapped.sort((a, b) => {
+      if (a.value > b.value) return 1;
+      if (a.value < b.value) return -1;
+
+      return 0;
+    });
+
+    const sortedStats = mapped.map((v) => allStats[v.i]);
 
     // print out
     log(chalk.inverse('Bark! Finding files:'));
     for (let stats of allStats) {
       const index = allStats.indexOf(stats);
 
-      if (stats.isFile()) {
-        log(filenames[index]);
-      } else {
+      if (stats.isDirectory()) {
         log(chalk.blue.bold(filenames[index]));
+      } else {
+        log(filenames[index]);
       }
 
       // console.log(filenames[index], stats.isFile());
